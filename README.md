@@ -58,6 +58,12 @@ Built a fully interactive front-end project.
 
 # Output
 
+![Image](https://github.com/user-attachments/assets/e22523e9-d2e6-4f8d-8a36-75615a05fdac)
+
+![Image](https://github.com/user-attachments/assets/60d31a3a-c3b9-48cf-b1d8-49fb5861bbc0)
+
+
+
 
 
 
