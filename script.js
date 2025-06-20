@@ -1,72 +1,91 @@
-// Get all 9 boxes (cells)
-const cells = document.querySelectorAll('.cell');
+let boxes = document.querySelectorAll(".box");
+let resetBtn = document.querySelector("#reset-btn");
+let newGameBtn = document.querySelector("#new-btn");
+let msgContainer = document.querySelector(".msg-container");
+let msg = document.querySelector("#msg");
 
-// Get the status text and reset button
-const statusText = document.getElementById('status');
-const resetbtn = document.getElementById('resetbtn');
+let turnO = true; //playerX, playerO
+let count = 0; //To Track Draw
 
-// Keep track of the player (X starts first)
-let currentPlayer = 'X';
-
-// Make an empty board (9 empty strings)
-let board = ["", "", "", "", "", "", "", "", ""];
-
-// Game still going?
-let gameActive = true;
-
-// Winning combinations
-const winningCombination = [
-    [0, 1, 2], // Top row
-    [3, 4, 5], // Middle row
-    [6, 7, 8], // Bottom row
-    [0, 3, 6], // Left column
-    [1, 4, 7], // Middle column fixed here
-    [2, 5, 8], // Right column
-    [0, 4, 8], // Diagonal \
-    [2, 4, 6]  // Diagonal /
+const winPatterns = [
+  [0, 1, 2],
+  [0, 3, 6],
+  [0, 4, 8],
+  [1, 4, 7],
+  [2, 5, 8],
+  [2, 4, 6],
+  [3, 4, 5],
+  [6, 7, 8],
 ];
 
-// Function: When a box is clicked
-function handleClick(e) {
-    const cell = e.target;
-    const index = cell.getAttribute("data-index");
+const resetGame = () => {
+  turnO = true;
+  count = 0;
+  enableBoxes();
+  msgContainer.classList.add("hide");
+};
 
-    // Don't allow clicking if box is filled or game is over
-    if (board[index] !== "" || !gameActive) return;
-
-    board[index] = currentPlayer;
-    cell.textContent = currentPlayer;
-
-    if (checkWin()) {
-        statusText.textContent = `Player ${currentPlayer} wins!`;
-        gameActive = false;
-    } else if (!board.includes("")) {
-        statusText.textContent = "It's a draw!";
-        gameActive = false;
+boxes.forEach((box) => {
+  box.addEventListener("click", () => {
+    if (turnO) {
+      //playerO
+      box.innerText = "O";
+      turnO = false;
     } else {
-        currentPlayer = currentPlayer === "X" ? "O" : "X";
-        statusText.textContent = `Player ${currentPlayer}'s turn`;
+      //playerX
+      box.innerText = "X";
+      turnO = true;
     }
-}
+    box.disabled = true;
+    count++;
 
-// Function: Check if current player won
-function checkWin() {
-    return winningCombination.some(pattern => {
-        return pattern.every(index => board[index] === currentPlayer);
-    });
-}
+    let isWinner = checkWinner();
 
-// Function: Restart game
-function resetGame() {
-    board = ["", "", "", "", "", "", "", "", ""];
-    currentPlayer = "X";
-    gameActive = true;
-    statusText.textContent = "Player X's turn";
-    cells.forEach(cell => cell.textContent = "");
-}
+    if (count === 9 && !isWinner) {
+      gameDraw();
+    }
+  });
+});
 
-// Add event listeners to all 9 cells
-cells.forEach(cell => cell.addEventListener("click", handleClick));
+const gameDraw = () => {
+  msg.innerText = `Game was a Draw.`;
+  msgContainer.classList.remove("hide");
+  disableBoxes();
+};
 
-// Add event listener to restart button
-resetbtn.addEventListener("click", resetGame);
+const disableBoxes = () => {
+  for (let box of boxes) {
+    box.disabled = true;
+  }
+};
+
+const enableBoxes = () => {
+  for (let box of boxes) {
+    box.disabled = false;
+    box.innerText = "";
+  }
+};
+
+const showWinner = (winner) => {
+  msg.innerText = `Congratulations, Winner is ${winner}`;
+  msgContainer.classList.remove("hide");
+  disableBoxes();
+};
+
+const checkWinner = () => {
+  for (let pattern of winPatterns) {
+    let pos1Val = boxes[pattern[0]].innerText;
+    let pos2Val = boxes[pattern[1]].innerText;
+    let pos3Val = boxes[pattern[2]].innerText;
+
+    if (pos1Val != "" && pos2Val != "" && pos3Val != "") {
+      if (pos1Val === pos2Val && pos2Val === pos3Val) {
+        showWinner(pos1Val);
+        return true;
+      }
+    }
+  }
+};
+
+newGameBtn.addEventListener("click", resetGame);
+resetBtn.addEventListener("click", resetGame);
